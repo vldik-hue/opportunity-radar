@@ -19,8 +19,7 @@
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
     .metric{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fafafa}
     .metric b{display:block;font-size:18px}
-    .btn{display:inline-block;margin-top:12px;padding:11px 14px;border-radius:10px;background:var(--accent);color:white;text-decoration:none;font-weight:650}
-    .archive a{color:var(--accent);text-decoration:none}
+    .status{font-weight:700}
     footer{padding:20px 0 34px;color:var(--muted);font-size:13px}
     @media(max-width:560px){.wrap{padding:14px}.grid{grid-template-columns:1fr}h1{font-size:25px}}
   </style>
@@ -30,36 +29,50 @@
     <section class="hero">
       <div class="muted">Персональная страница мониторинга</div>
       <h1>Радар возможностей</h1>
-      <div class="muted">Последнее обновление: тестовая публикация</div>
+      <div class="muted">Последнее обновление: 01.10.2026 · тестовая публикация</div>
     </section>
 
     <section class="card">
-      <div class="badge">СИСТЕМА ГОТОВА</div>
-      <h2>Первая публикация работает</h2>
-      <p>Эта страница создана напрямую из ChatGPT в GitHub-репозитории.</p>
-      <p>Дальше сюда будет подставляться свежий выпуск радара: найденные активы, микроэксперименты, сигналы рынка и новые источники.</p>
+      <div class="badge">ТЕСТ ОБНОВЛЕНИЯ</div>
+      <h2>Пробный выпуск радара</h2>
+      <p>Если ты видишь этот текст, значит цепочка <b>ChatGPT → GitHub → GitHub Pages</b> работает.</p>
       <div class="grid">
-        <div class="metric"><span class="muted">Новых возможностей</span><b>—</b></div>
-        <div class="metric"><span class="muted">Срочных сигналов</span><b>—</b></div>
+        <div class="metric"><span class="muted">Новых возможностей</span><b>2</b></div>
+        <div class="metric"><span class="muted">Срочных сигналов</span><b>0</b></div>
       </div>
     </section>
 
     <section class="card">
-      <h2>Что будет в выпуске</h2>
-      <p><b>Возможность:</b> что именно нашли и где.</p>
-      <p><b>Цена / вложения:</b> сколько нужно на тест.</p>
-      <p><b>Что получаем:</b> актив, товар, оборудование, аудиторию, поток заявок и т. п.</p>
-      <p><b>Почему интересно:</b> откуда может появиться дополнительная ценность.</p>
-      <p><b>Главный риск:</b> что способно сломать экономику.</p>
-      <p><b>Следующий шаг:</b> конкретное действие, если идею стоит проверять.</p>
+      <div class="badge">МИКРОЭКСПЕРИМЕНТ</div>
+      <h2>Локальный тест без склада</h2>
+      <p><b>Модель:</b> найти локальный спрос, проверить предложение маленьким объёмом и только после подтверждения масштабировать.</p>
+      <p><b>Вложения:</b> минимальные, без закупки большой партии.</p>
+      <p><b>Главный риск:</b> ошибочно принять интерес за реальную готовность платить.</p>
+      <p><b>Следующий шаг:</b> подтвердить спрос реальными обращениями.</p>
+      <p class="status">Статус: ПРОВЕРИТЬ</p>
     </section>
 
-    <section class="card archive">
-      <h2>Архив</h2>
-      <p class="muted">Появится после первых реальных выпусков.</p>
+    <section class="card">
+      <div class="badge">ЦИФРОВОЙ АКТИВ</div>
+      <h2>Покупка небольшого проекта с недоработанной монетизацией</h2>
+      <p><b>Что ищем:</b> сайт, бот, небольшой сервис или другой цифровой актив с понятной передачей прав и существующими пользователями.</p>
+      <p><b>Почему может быть интересно:</b> улучшить упаковку, продажи и монетизацию без создания продукта с нуля.</p>
+      <p><b>Главный риск:</b> купить код или домен без реального спроса.</p>
+      <p><b>Следующий шаг:</b> проверять трафик, пользователей и фактические платежи до покупки.</p>
+      <p class="status">Статус: НАБЛЮДАТЬ</p>
     </section>
 
-    <footer>GitHub Pages · opportunity-radar</footer>
+    <section class="card">
+      <h2>Сигналы рынка</h2>
+      <p>Для радара приоритетны идеи, которые можно проверить небольшими деньгами и быстро получить фактический ответ рынка.</p>
+    </section>
+
+    <section class="card">
+      <h2>Развитие радара</h2>
+      <p>Тестируется новая система публикации отчётов через GitHub Pages без отдельного VPS и без платной инфраструктуры.</p>
+    </section>
+
+    <footer>GitHub Pages · opportunity-radar · тестовая версия</footer>
   </main>
 </body>
 </html>
