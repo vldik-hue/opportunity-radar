@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Радар возможностей</title>
+  <style>
+    :root{--bg:#f5f6f8;--card:#fff;--text:#15171a;--muted:#68707a;--line:#e4e7eb;--accent:#2563eb}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+    .wrap{max-width:760px;margin:0 auto;padding:18px}
+    .hero{padding:22px 0 14px}
+    h1{font-size:28px;line-height:1.15;margin:0 0 8px}
+    .muted{color:var(--muted);font-size:14px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+    .badge{display:inline-block;font-size:12px;font-weight:700;padding:5px 8px;border-radius:999px;background:#eef2ff;margin-bottom:10px}
+    h2{font-size:20px;margin:0 0 10px}
+    p{margin:8px 0}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .metric{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fafafa}
+    .metric b{display:block;font-size:18px}
+    .btn{display:inline-block;margin-top:12px;padding:11px 14px;border-radius:10px;background:var(--accent);color:white;text-decoration:none;font-weight:650}
+    .archive a{color:var(--accent);text-decoration:none}
+    footer{padding:20px 0 34px;color:var(--muted);font-size:13px}
+    @media(max-width:560px){.wrap{padding:14px}.grid{grid-template-columns:1fr}h1{font-size:25px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="muted">Персональная страница мониторинга</div>
+      <h1>Радар возможностей</h1>
+      <div class="muted">Последнее обновление: тестовая публикация</div>
+    </section>
+
+    <section class="card">
+      <div class="badge">СИСТЕМА ГОТОВА</div>
+      <h2>Первая публикация работает</h2>
+      <p>Эта страница создана напрямую из ChatGPT в GitHub-репозитории.</p>
+      <p>Дальше сюда будет подставляться свежий выпуск радара: найденные активы, микроэксперименты, сигналы рынка и новые источники.</p>
+      <div class="grid">
+        <div class="metric"><span class="muted">Новых возможностей</span><b>—</b></div>
+        <div class="metric"><span class="muted">Срочных сигналов</span><b>—</b></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Что будет в выпуске</h2>
+      <p><b>Возможность:</b> что именно нашли и где.</p>
+      <p><b>Цена / вложения:</b> сколько нужно на тест.</p>
+      <p><b>Что получаем:</b> актив, товар, оборудование, аудиторию, поток заявок и т. п.</p>
+      <p><b>Почему интересно:</b> откуда может появиться дополнительная ценность.</p>
+      <p><b>Главный риск:</b> что способно сломать экономику.</p>
+      <p><b>Следующий шаг:</b> конкретное действие, если идею стоит проверять.</p>
+    </section>
+
+    <section class="card archive">
+      <h2>Архив</h2>
+      <p class="muted">Появится после первых реальных выпусков.</p>
+    </section>
+
+    <footer>GitHub Pages · opportunity-radar</footer>
+  </main>
+</body>
+</html>
