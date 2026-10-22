@@ -62,7 +62,7 @@ details{border-top:1px solid var(--line);padding-top:10px}summary{cursor:pointer
 <div id="message" role="status" aria-live="polite"></div>
 </section>
 <section class="panel span5"><h2>2. Проверить и получить сигнал</h2>
-<div class="row"><button id="checkBtn">Проверить все автоматически</button><button class="alt" id="notifBtn">Разрешить уведомления</button></div>
+<div class="row"><button id="checkBtn">Проверить все автоматически</button><button class="alt" id="notifBtn">Разрешить уведомления</button><button class="quiet" id="testBtn">Тестовый сигнал</button></div>
 <p class="small">При открытой странице автоматическая проверка повторяется примерно каждые 30 минут. При закрытом браузере проверок и системных уведомлений нет.</p>
 <div class="note" id="trialInfo">Бесплатная проверка гипотезы: 7 дней до 10 автоматических наблюдений, затем до 3. Это демонстрация будущих тарифов, не платная подписка.</div>
 <div class="row"><button class="alt" id="interestBtn">Мне нужен платный тариф</button><span class="small" id="interestStatus"></span></div>
@@ -162,6 +162,7 @@ async function checkAll(){
 $("checkBtn").onclick=checkAll;
 window.setInterval(()=>{if(document.visibilityState==="visible"&&navigator.onLine&&!busy)checkAll();},30*60*1000);
 $("notifBtn").onclick=async()=>{if(!("Notification"in window)){showMsg("Этот браузер не поддерживает системные уведомления",true);return;}if(!window.isSecureContext){showMsg("Уведомления доступны на HTTPS и localhost",true);return;}const p=await Notification.requestPermission();showMsg(p==="granted"?"Уведомления разрешены — пока страница открыта":"Разрешение на уведомления не получено",p!=="granted");};
+$("testBtn").onclick=()=>{const msg="Это тест, а не обнаруженное изменение источника";db.events.unshift({id:uid(),name:"ТЕСТ · проверка уведомления",message:msg,time:now(),test:true});db.events=db.events.slice(0,150);if("Notification"in window&&Notification.permission==="granted"){try{new Notification("Сигнал — тест",{body:msg,tag:"signal-selftest"});}catch(err){console.warn("Notification unavailable",err);}}save();render();showMsg("Тестовое событие записано отдельно от настоящих сигналов.");};
 $("manualForm").onsubmit=e=>{e.preventDefault();const x=db.items.find(y=>y.id===$("manualItem").value&&y.kind==="manual");if(!x){showMsg("Выберите ручное наблюдение",true);return;}const t=$("manualPrice").value.trim(),value=t===""?null:Number(t);const sign=evaluate(x,value,$("manualStock").value,"ручной ввод");save();render();$("manualPrice").value="";showMsg(sign?"Событие обнаружено и добавлено в журнал":"Ручная проверка сохранена. Новых событий нет.");};
 $("items").onclick=e=>{
  const btn=e.target.closest("button[data-action]");if(!btn)return;const x=db.items.find(y=>y.id===btn.dataset.id);if(!x)return;
