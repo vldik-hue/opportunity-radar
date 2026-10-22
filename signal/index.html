@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сигнал — наблюдение за изменениями</title>
+<meta name="description" content="Сигнал: минимальный рабочий прототип наблюдения за изменениями цен, наличия и новых версий.">
+<style>
+:root{color-scheme:light;--bg:#f3f6fb;--ink:#152237;--muted:#59677d;--line:#dfe5f0;--blue:#2556c6;--good:#167b56;--orange:#a46a18;--card:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+.wrap{max-width:1110px;margin:auto;padding:24px 18px 72px}
+header{background:linear-gradient(115deg,#18305c,#224d93);color:white;border-radius:20px;padding:28px 30px;margin-bottom:20px}
+header h1{font-size:35px;letter-spacing:-.8px;margin:0 0 6px}header p{margin:0;color:#d8e4f7;max-width:730px}
+h2{font-size:19px;margin:0 0 13px}h3{font-size:16px;margin:0 0 5px}
+p{margin:7px 0 11px}.small{font-size:12px;color:var(--muted)}.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:17px}.panel{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:20px;box-shadow:0 2px 10px #19325108}
+.span7{grid-column:span 7}.span5{grid-column:span 5}.span12{grid-column:span 12}
+@media(max-width:850px){.span7,.span5{grid-column:span 12}}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.between{justify-content:space-between}.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px}.field{display:grid;gap:4px;font-size:13px;color:#34445d;font-weight:600}
+input,select,button{font:inherit}input,select{height:41px;min-width:0;width:100%;padding:8px 10px;color:var(--ink);background:#fff;border:1px solid #cad5e4;border-radius:8px}
+button{padding:9px 13px;border:1px solid var(--blue);background:var(--blue);color:white;border-radius:9px;cursor:pointer;font-weight:600}
+button:hover{filter:brightness(.94)}button:disabled{opacity:.5;cursor:not-allowed}button.alt{background:white;color:var(--blue)}button.quiet{background:white;color:#57677c;border-color:#cad5e4}
+button.danger{background:white;color:#a94343;border-color:#efcccc}
+.tag{padding:4px 8px;border-radius:999px;background:#e8eefb;color:#24478f;font-size:12px;font-weight:700}
+.tag.good{background:#e4f7ef;color:#18734f}.tag.warn{background:#fff3df;color:#865a0b}
+.hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
+.stat{border:1px solid #ffffff3a;border-radius:11px;padding:13px 15px;background:#ffffff12}
+.stat strong{display:block;font-size:25px;line-height:1.3}.stat span{font-size:12px;color:#dce7f8}
+.note{background:#eff5ff;border-left:3px solid #3d6ed8;padding:12px;border-radius:8px;margin:12px 0;font-size:13px}
+.warnbox{background:#fffaed;border-left:3px solid #d09a3b;padding:12px;border-radius:8px;margin:12px 0;font-size:13px}
+.items{display:grid;gap:10px}.item{border:1px solid var(--line);border-radius:11px;padding:13px}
+.itemhead{display:flex;justify-content:space-between;gap:9px;align-items:flex-start}.item h3{overflow-wrap:anywhere}
+.meta{font-size:12px;color:var(--muted)}.val{font-size:21px;font-weight:750;margin:5px 0}
+.link{color:#2556c6;text-decoration:none;overflow-wrap:anywhere}.link:hover{text-decoration:underline}
+.event{border-left:3px solid #2a71d2;background:#f0f5ff;padding:11px 13px;border-radius:6px;margin-bottom:8px}
+.event.test{border-left-color:#9aa6bb;background:#f8fafc}
+.hidden{display:none!important}a{color:#2556c6}
+footer{padding:20px 4px;color:var(--muted);font-size:12px}
+details{border-top:1px solid var(--line);padding-top:10px}summary{cursor:pointer;font-weight:700}
+#message{min-height:17px;margin:8px 0;font-weight:600}
+</style></head><body><div class="wrap">
+<header>
+<div class="row between"><div><span class="tag">РАДАР · КОНТУР III</span> <span class="tag">MVP 0.2</span></div><span style="font-size:12px;color:#dbe8fb">Без регистрации и платежей</span></div>
+<h1>Сигнал</h1><p>Отслеживайте изменения там, где они важны: цена, появление товара, обновление программ или данные разрешённого API. Первый практический прототип мониторинга с проверяемыми событиями.</p>
+<div class="hero-stats"><div class="stat"><strong id="numItems">0</strong><span>наблюдений</span></div><div class="stat"><strong id="numEvents">0</strong><span>сигналов</span></div><div class="stat"><strong id="trialLabel">7 дней</strong><span>тестового режима</span></div></div>
+</header>
+<div class="grid">
+<section class="panel span7"><div class="row between"><h2>1. Добавить наблюдение</h2><span class="tag">Шаг 1</span></div>
+<form id="addForm">
+<label class="field">Тип проверки
+<select id="kind"><option value="github">Автоматически · GitHub Releases</option><option value="json">Автоматически · открытый JSON API</option><option value="manual">Вручную · цена / наличие</option></select>
+</label><p class="small" id="kindHelp">Отслеживает выход новой версии открытого программного проекта через официальный GitHub API.</p>
+<div class="formgrid">
+<label class="field">Название наблюдения<input id="name" maxlength="120" placeholder="Например, обновление программы" required></label>
+<div id="repoGroup"><label class="field">Репозиторий owner/repo<input id="repo" placeholder="cli/cli" pattern="[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+" autocomplete="off"></label></div>
+<div id="apiGroup" class="hidden"><label class="field">Прямая HTTPS-ссылка на JSON<input id="apiUrl" type="url" placeholder="https://api.example.com/product/123"></label></div>
+<div id="pathGroup" class="hidden"><label class="field">Поле JSON с ценой или значением<input id="valuePath" placeholder="price.current"></label></div>
+<div id="modeGroup" class="hidden"><label class="field">Событие<select id="mode"><option value="change">Любое изменение значения</option><option value="below">Значение ≤ порога</option><option value="above">Значение ≥ порога</option><option value="stock">Появление в наличии (ручной ввод)</option><option value="both">Цена ≤ порога или наличие</option></select></label></div>
+<div id="targetGroup" class="hidden"><label class="field">Порог, ₽ или единицы<input id="target" type="number" step="any" min="0" placeholder="Например, 2500"></label></div>
+<div id="manualUrlGroup" class="hidden"><label class="field">Ссылка на товар (необязательно)<input id="manualUrl" type="url" placeholder="https://..."></label></div>
+</div>
+<p class="small">Для JSON API источник должен разрешать доступ из браузера (CORS). Не вставляйте ссылки с паролями и токенами.</p>
+<div class="row"><button type="submit">+ Добавить</button><button class="alt" id="demoBtn" type="button">Демо на официальном API</button></div>
+</form>
+<div id="message" role="status" aria-live="polite"></div>
+</section>
+<section class="panel span5"><h2>2. Проверить и получить сигнал</h2>
+<div class="row"><button id="checkBtn">Проверить все автоматически</button><button class="alt" id="notifBtn">Разрешить уведомления</button></div>
+<p class="small">При открытой странице автоматическая проверка повторяется примерно каждые 30 минут. При закрытом браузере проверок и системных уведомлений нет.</p>
+<div class="note" id="trialInfo">Бесплатная проверка гипотезы: 7 дней до 10 автоматических наблюдений, затем до 3. Это демонстрация будущих тарифов, не платная подписка.</div>
+<div class="row"><button class="alt" id="interestBtn">Мне нужен платный тариф</button><span class="small" id="interestStatus"></span></div>
+<p class="small">Кнопка фиксирует интерес только в этом браузере. Она не отправляет заявку и не списывает деньги.</p>
+</section>
+<section class="panel span7">
+<div class="row between"><h2>Активные наблюдения</h2><span id="state" class="small">Данные только в браузере</span></div>
+<div id="items" class="items"><p class="muted">Пока ничего нет.</p></div>
+<details style="margin-top:16px"><summary>Внести ручное наблюдение</summary>
+<form id="manualForm" style="padding-top:12px"><div class="formgrid">
+<label class="field">Позиция<select id="manualItem"></select></label><label class="field">Новая цена<input id="manualPrice" type="number" min="0" step="any" placeholder="Можно оставить пустым"></label>
+<label class="field">Наличие<select id="manualStock"><option value="unknown">Неизвестно</option><option value="no">Нет</option><option value="yes">Да</option></select></label>
+</div><p><button type="submit">Сохранить проверку</button></p></form>
+</details>
+</section>
+<section class="panel span5"><div class="row between"><h2>Журнал событий</h2><button id="clearEvents" class="quiet">Очистить журнал</button></div><div id="events"><p class="muted">Событий ещё нет.</p></div></section>
+<section class="panel span12"><div class="row between"><h2>Данные и настройки</h2><span class="tag warn">Эксперимент</span></div>
+<p class="muted">Выгрузите наблюдения перед очисткой браузера. Данные не синхронизируются между устройствами.</p>
+<div class="row"><button class="alt" id="exportBtn">Экспорт JSON</button><button class="alt" id="csvBtn">Экспорт CSV</button><label for="importFile" style="cursor:pointer;color:#2556c6;font-weight:700">Импорт JSON</label><input type="file" id="importFile" accept="application/json,.json" style="width:170px;height:auto;padding:5px"><button class="danger" id="clearBtn">Удалить всё</button></div>
+<div class="warnbox">Ограничения: нет серверной фоновой проверки, личного кабинета, оплаты, коммерческого SLA и гарантии доступности внешних API. GitHub Releases — рабочий демонстрационный источник для проверки механизма; он не является магазином. Для мониторинга товарных цен нужен законный и доступный источник данных поставщика.</div>
+</section>
+</div>
+<footer>«Сигнал» — экспериментальный продукт контура III проекта «Радар возможностей». Источники проверяются только по явному выбору пользователя. Информация носит справочный характер. Никаких заявок, покупок, внешних публикаций и платежей приложение не создаёт.</footer></div>
+<script>
+"use strict";
+const KEY="signal-mvp-02",OLDKEY="signal-mvp-01";
+const $=s=>document.getElementById(s), esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const now=()=>new Date().toLocaleString("ru-RU"), iso=()=>new Date().toISOString(),uid=()=>String(Date.now())+Math.random().toString(16).slice(2,8);
+function defaultDB(){return {version:2,startedAt:iso(),items:[],events:[],interest:[]};}
+let db=defaultDB();try{const raw=localStorage.getItem(KEY);if(raw)db=JSON.parse(raw);else{const old=JSON.parse(localStorage.getItem(OLDKEY)||"null");if(old?.items){db.items=old.items.map(x=>({id:x.id||uid(),kind:"manual",name:x.name||"Позиция",manualUrl:x.url||"",target:x.target??null,mode:x.mode||"change",currentValue:x.price??null,stock:x.stock||"unknown",checkedAt:x.checked||null,baseline:x.price!==null||x.stock!=="unknown",status:"",enabled:true}));db.events=(old.events||[]).map(e=>({id:uid(),name:e.name,message:e.message,time:e.time,test:false}));}}}catch(e){console.warn("Invalid saved data",e);db=defaultDB();}
+if(!Array.isArray(db.items))db.items=[];if(!Array.isArray(db.events))db.events=[];if(!Array.isArray(db.interest))db.interest=[];db.startedAt ||=iso();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));return true;}catch(e){showMsg("Не удалось сохранить: хранилище браузера недоступно",true);return false;}}
+function showMsg(s,bad=false){$("message").textContent=s;$("message").style.color=bad?"#a33e3e":"#167b56";}
+const isTrial=()=>Date.now()-new Date(db.startedAt).getTime()<7*86400000;
+const daysLeft=()=>Math.max(0,Math.ceil((new Date(db.startedAt).getTime()+7*86400000-Date.now())/86400000));
+function activeAuto(){return db.items.filter(x=>x.kind!=="manual"&&x.enabled!==false);}
+function allowable(x){if(x.kind==="manual")return true;const arr=activeAuto();return arr.indexOf(x)<(isTrial()?10:3);}
+function showKind(){
+ const k=$("kind").value,json=k==="json",manual=k==="manual";
+ $("repoGroup").classList.toggle("hidden",k!=="github");
+ $("apiGroup").classList.toggle("hidden",!json);$("pathGroup").classList.toggle("hidden",!json);
+ $("manualUrlGroup").classList.toggle("hidden",!manual);$("modeGroup").classList.toggle("hidden",k==="github");$("targetGroup").classList.toggle("hidden",k==="github"||$("mode").value==="change"||$("mode").value==="stock");
+ $("kindHelp").textContent=k==="github"?"Официальный GitHub API: проверка появления нового релиза выбранной программы.":json?"Проверка числового или строкового поля в открытом JSON API, доступном браузеру (CORS).":"Ручная фиксация цены и наличия без автоматического обращения к сайту.";
+ if(manual){$("mode").innerHTML='<option value="below">Цена не выше порога</option><option value="stock">Появление в наличии</option><option value="both">Любое из двух событий</option><option value="change">Любое изменение цены</option>';}
+ else if(json){$("mode").innerHTML='<option value="change">Любое изменение значения</option><option value="below">Значение ≤ порога</option><option value="above">Значение ≥ порога</option>';}
+}
+$("kind").addEventListener("change",showKind);$("mode").addEventListener("change",()=>{$("targetGroup").classList.toggle("hidden",$("mode").value==="change"||$("mode").value==="stock"||$("kind").value==="github");});showKind();
+function repoValid(s){return /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(s);}
+function safeHttps(s){try{const u=new URL(s);return u.protocol==="https:"&&!u.username&&!u.password&&u.hostname!=="localhost"&&!/^\d{1,3}(\.\d{1,3}){3}$/.test(u.hostname);}catch{return false;}}
+$("addForm").onsubmit=e=>{
+ e.preventDefault();const kind=$("kind").value,mode=kind==="github"?"change":$("mode").value,tar=$("target").value.trim(),t=tar===""?null:Number(tar);
+ if(activeAuto().length>=10&&kind!=="manual"){showMsg("Максимум 10 автоматических наблюдений в прототипе",true);return;}
+ if(["below","above","both"].includes(mode)&&t===null){showMsg("Введите порог для выбранного условия",true);return;}
+ const x={id:uid(),kind,name:$("name").value.trim(),mode,target:t,repo:$("repo").value.trim(),apiUrl:$("apiUrl").value.trim(),valuePath:$("valuePath").value.trim(),manualUrl:$("manualUrl").value.trim(),currentValue:null,stock:"unknown",checkedAt:null,baseline:false,status:"Ожидает первой проверки",enabled:true};
+ if(kind==="github"&&!repoValid(x.repo)){showMsg("Формат репозитория: владелец/проект",true);return;}
+ if(kind==="json"&&(!safeHttps(x.apiUrl)||!/^[\w-]+(?:\.[\w-]+)*$/.test(x.valuePath))){showMsg("Нужен HTTPS-адрес без секретов и корректный путь JSON (например price.value)",true);return;}
+ if(kind==="manual"&&x.manualUrl&&!safeHttps(x.manualUrl)){showMsg("Ссылка на товар должна начинаться с HTTPS",true);return;}
+ db.items.push(x);save();render();$("name").value="";showMsg("Наблюдение добавлено. Первая проверка задаст исходное состояние.");};
+function eventFor(x,message,test=false){db.events.unshift({id:uid(),name:x.name,message,time:now(),test});db.events=db.events.slice(0,150);if(!test&&"Notification"in window&&Notification.permission==="granted"){try{new Notification("Сигнал: "+x.name,{body:message,tag:"signal-"+x.id});}catch(e){console.warn("Notifications disabled",e)}}}
+function evaluate(x,value,stock,source){
+ const was=x.baseline,old=x.currentValue,oldstock=x.stock||"unknown";let fired=false,message="";
+ const numeric=typeof value==="number"&&Number.isFinite(value);
+ if(was){
+   if(x.mode==="change"&&value!==null&&String(value)!==String(old)){fired=true;message="Изменение: "+String(old??"—")+" → "+String(value);}
+   if(["below","above","both"].includes(x.mode)&&numeric&&x.target!==null){
+      const ok=x.mode==="above"?value>=x.target:value<=x.target,prev=typeof old==="number"&&(x.mode==="above"?old>=x.target:old<=x.target);
+      if(ok&&!prev){fired=true;message="Достигнут порог "+x.target+": теперь "+value;}}
+   if(["stock","both"].includes(x.mode)&&stock==="yes"&&oldstock!=="yes"){fired=true;message=(message?message+"; ":"")+"Товар появился в наличии";}
+ }
+ x.currentValue=value;x.stock=stock||"unknown";x.checkedAt=iso();x.baseline=true;x.status="Проверено · "+source;
+ if(fired)eventFor(x,message);
+ return fired;
+}
+async function fetchJSON(url){
+ const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),12000);
+ try{const r=await fetch(url,{headers:{"Accept":"application/vnd.github+json, application/json"},credentials:"omit",cache:"no-store",signal:ctrl.signal});
+ if(!r.ok)throw Error("HTTP "+r.status+(r.status===403||r.status===429?" · возможен лимит запросов":""));
+ const ct=r.headers.get("content-type")||"";if(!ct.includes("json"))throw Error("Ответ не в формате JSON");
+ const len=Number(r.headers.get("content-length")||0);if(len>1024*1024)throw Error("Ответ больше 1 МБ");
+ return await r.json();}finally{clearTimeout(timer);}
+}
+function getPath(obj,p){let v=obj;for(const key of p.split(".")){if(v==null||!Object.prototype.hasOwnProperty.call(Object(v),key))throw Error("Поле не найдено: "+p);v=v[key];}if(typeof v==="object")throw Error("Поле должно содержать число или строку");return v;}
+let busy=false;
+async function checkAll(){
+ if(busy)return;const checks=activeAuto().filter(allowable);if(!checks.length){showMsg("Добавьте автоматическое наблюдение. После trial доступно до 3.",true);return;}
+ busy=true;$("checkBtn").disabled=true;let ok=0,err=0,alerts=0;
+ for(const x of checks){
+  try{const url=x.kind==="github"?"https://api.github.com/repos/"+x.repo+"/releases/latest":x.apiUrl;
+      const data=await fetchJSON(url);const raw=x.kind==="github"?data.tag_name:getPath(data,x.valuePath);
+      if(raw===null||raw===undefined||raw==="")throw Error("Источник не вернул значение");
+      const val=x.kind==="github"?String(raw):(typeof raw==="number"?raw:(String(raw).trim()!==""&&Number.isFinite(Number(raw))?Number(raw):String(raw)));
+      if(evaluate(x,val,"unknown",x.kind==="github"?"GitHub API":"открытый API"))alerts++;ok++;
+  }catch(e){err++;x.status="Ошибка: "+String(e.message||e).slice(0,130);x.checkedAt=iso();}
+ }
+ save();render();busy=false;$("checkBtn").disabled=false;showMsg("Проверено: "+ok+" · ошибки: "+err+" · новые сигналы: "+alerts,!!err&&ok===0);
+}
+$("checkBtn").onclick=checkAll;
+window.setInterval(()=>{if(document.visibilityState==="visible"&&navigator.onLine&&!busy)checkAll();},30*60*1000);
+$("notifBtn").onclick=async()=>{if(!("Notification"in window)){showMsg("Этот браузер не поддерживает системные уведомления",true);return;}if(!window.isSecureContext){showMsg("Уведомления доступны на HTTPS и localhost",true);return;}const p=await Notification.requestPermission();showMsg(p==="granted"?"Уведомления разрешены — пока страница открыта":"Разрешение на уведомления не получено",p!=="granted");};
+$("manualForm").onsubmit=e=>{e.preventDefault();const x=db.items.find(y=>y.id===$("manualItem").value&&y.kind==="manual");if(!x){showMsg("Выберите ручное наблюдение",true);return;}const t=$("manualPrice").value.trim(),value=t===""?null:Number(t);const sign=evaluate(x,value,$("manualStock").value,"ручной ввод");save();render();$("manualPrice").value="";showMsg(sign?"Событие обнаружено и добавлено в журнал":"Ручная проверка сохранена. Новых событий нет.");};
+$("items").onclick=e=>{
+ const btn=e.target.closest("button[data-action]");if(!btn)return;const x=db.items.find(y=>y.id===btn.dataset.id);if(!x)return;
+ if(btn.dataset.action==="delete"){if(!confirm("Удалить наблюдение «"+x.name+"»?"))return;db.items=db.items.filter(y=>y.id!==x.id);save();render();}
+ if(btn.dataset.action==="toggle"){x.enabled=x.enabled===false;save();render();}
+};
+$("clearEvents").onclick=()=>{if(confirm("Очистить журнал событий?")){db.events=[];save();render();}};
+$("demoBtn").onclick=()=>{
+ if(db.items.some(x=>x.kind==="github"&&x.repo==="cli/cli")){showMsg("Демо уже добавлено. Нажмите «Проверить все автоматически».");return;}
+ db.items.push({id:uid(),kind:"github",name:"Демо · выход новой версии GitHub CLI",repo:"cli/cli",mode:"change",target:null,currentValue:null,stock:"unknown",checkedAt:null,baseline:false,status:"Ожидает первой проверки",enabled:true});save();render();showMsg("Демо добавлено. Нажмите «Проверить все автоматически».");};
+$("interestBtn").onclick=()=>{db.interest.push({time:iso(),model:"paid-upgrade"});save();render();showMsg("Интерес сохранён локально. Это не платная заявка и не доказательство спроса.");};
+function download(filename,content,type){const u=URL.createObjectURL(new Blob([content],{type})),a=document.createElement("a");a.href=u;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500);}
+$("exportBtn").onclick=()=>download("signal-backup.json",JSON.stringify(db,null,2),"application/json");
+$("csvBtn").onclick=()=>{const rows=[["Название","Тип","Источник","Значение","Наличие","Последняя проверка","Статус"],...db.items.map(x=>[x.name,x.kind,x.apiUrl||x.repo||x.manualUrl||"",x.currentValue??"",x.stock,x.checkedAt||"",x.status||""])];const q=v=>'"'+String(v).replace(/"/g,'""')+'"';download("signal-observations.csv","\ufeff"+rows.map(r=>r.map(q).join(";")).join("\r\n"),"text/csv;charset=utf-8");};
+$("importFile").onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{if(file.size>1024*1024)throw Error("Файл слишком большой");const data=JSON.parse(await file.text());if(!Array.isArray(data.items)||!Array.isArray(data.events)||data.items.length>100)throw Error("Неподдерживаемый формат");if(!confirm("Заменить существующие наблюдения данными из файла?"))return;db={version:2,startedAt:data.startedAt||iso(),items:data.items.filter(x=>x&&["manual","github","json"].includes(x.kind)).slice(0,100),events:data.events.slice(0,150),interest:Array.isArray(data.interest)?data.interest.slice(0,100):[]};save();render();showMsg("Импорт завершён.");}catch(ex){showMsg("Ошибка импорта: "+ex.message,true);}e.target.value="";};
+$("clearBtn").onclick=()=>{if(confirm("Безвозвратно удалить все локальные данные Сигнала?")){db=defaultDB();save();render();showMsg("Данные удалены.");}};
+function render(){
+ const active=activeAuto(),days=daysLeft();$("numItems").textContent=String(db.items.length);$("numEvents").textContent=String(db.events.filter(x=>!x.test).length);$("trialLabel").textContent=isTrial()?days+" дн.":"3 места";
+ $("trialInfo").textContent=isTrial()?"Пробный режим: осталось "+days+" дн. Доступно до 10 автоматических наблюдений, затем 3. Оплаты и автоматического списания нет.":"Пробный режим завершён: до 3 автоматических наблюдений остаются бесплатными. Платное расширение пока не продаётся.";
+ $("interestStatus").textContent=db.interest.length?"Локальных отметок интереса: "+db.interest.length:"";
+ $("manualItem").innerHTML=db.items.filter(x=>x.kind==="manual").map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join("");
+ $("items").innerHTML=db.items.length?db.items.map(x=>{
+  const allowed=allowable(x),status=x.status||"Не проверено",link=x.kind==="github"?"https://github.com/"+encodeURI(x.repo||""):x.kind==="json"?x.apiUrl:x.manualUrl;
+  return '<article class="item"><div class="itemhead"><div><h3>'+esc(x.name)+'</h3><div class="meta">'+(x.kind==="github"?"GitHub Releases":x.kind==="json"?"JSON API":"Ручной источник")+' · '+(x.enabled===false?"Приостановлено":!allowed?"Лимит бесплатного доступа":"Активно")+'</div></div><span class="tag '+(status.startsWith("Ошибка")?"warn":x.baseline?"good":"")+'">'+(x.baseline?"Источник проверялся":"Без данных")+'</span></div><div class="val">'+esc(x.currentValue??"—")+'</div><p class="small">'+esc(status)+' · '+esc(x.checkedAt?new Date(x.checkedAt).toLocaleString("ru-RU"):"Проверки не было")+'</p><div class="row">'+(link?'<a class="link" href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">Источник ↗</a>':'')+'<button class="quiet" data-action="toggle" data-id="'+esc(x.id)+'">'+(x.enabled===false?"Включить":"Пауза")+'</button><button class="danger" data-action="delete" data-id="'+esc(x.id)+'">Удалить</button></div></article>';
+ }).join(""):'<p class="muted">Наблюдений нет. Загрузите демо или добавьте свой источник.</p>';
+ $("events").innerHTML=db.events.length?db.events.slice(0,16).map(x=>'<article class="event '+(x.test?"test":"")+'"><b>'+esc(x.name)+'</b><div>'+esc(x.message)+'</div><div class="small">'+esc(x.time)+'</div></article>').join(""):'<p class="muted">Нет событий. Первая проверка задаёт исходное состояние, сигнал появляется только при следующем изменении.</p>';
+ $("state").textContent="Авто: "+active.filter(allowable).length+" · локальное хранение";
+}
+render();
+</script></body></html>
